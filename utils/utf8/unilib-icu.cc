@@ -19,7 +19,10 @@
 #include <utility>
 
 #include "utils/base/logging.h"
+#include "utils/base/statusor.h"
 #include "utils/utf8/unilib-common.h"
+#include "unicode/unistr.h"
+#include "unicode/utext.h"
 
 namespace libtextclassifier3 {
 
@@ -111,6 +114,11 @@ char32 UniLibBase::ToUpper(char32 codepoint) const {
 
 char32 UniLibBase::GetPairedBracket(char32 codepoint) const {
   return u_getBidiPairedBracket(codepoint);
+}
+
+StatusOr<int32> UniLibBase::Length(const UnicodeText& text) const {
+  return icu::UnicodeString::fromUTF8({text.data(), text.size_bytes()})
+      .countChar32();
 }
 
 UniLibBase::RegexMatcher::RegexMatcher(icu::RegexPattern* pattern,

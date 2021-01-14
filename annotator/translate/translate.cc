@@ -13,8 +13,6 @@
 // limitations under the License.
 //
 
-#pragma GCC diagnostic ignored "-Wc++17-extensions"
-
 #include "annotator/translate/translate.h"
 
 #include <memory>

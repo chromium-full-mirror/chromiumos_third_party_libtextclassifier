@@ -25,6 +25,7 @@
 #include <mutex>  // NOLINT(build/c++11)
 
 #include "utils/base/integral_types.h"
+#include "utils/base/statusor.h"
 #include "utils/utf8/unicodetext.h"
 #include "unicode/brkiter.h"
 #include "unicode/errorcode.h"
@@ -51,6 +52,8 @@ class UniLibBase {
   char32 ToLower(char32 codepoint) const;
   char32 ToUpper(char32 codepoint) const;
   char32 GetPairedBracket(char32 codepoint) const;
+
+  StatusOr<int32> Length(const UnicodeText& text) const;
 
   // Forward declaration for friend.
   class RegexPattern;

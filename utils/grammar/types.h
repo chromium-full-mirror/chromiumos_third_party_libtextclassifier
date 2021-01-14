@@ -13,8 +13,6 @@
 // limitations under the License.
 //
 
-#pragma GCC diagnostic ignored "-Wc++17-extensions"
-
 // Common definitions used in the grammar system.
 
 #ifndef LIBTEXTCLASSIFIER_UTILS_GRAMMAR_TYPES_H_

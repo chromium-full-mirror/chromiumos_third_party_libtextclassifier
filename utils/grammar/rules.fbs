@@ -13,7 +13,7 @@
 // limitations under the License.
 //
 
-include "utils/grammar/next/semantics/expression.fbs";
+include "utils/grammar/semantics/expression.fbs";
 include "utils/zlib/buffer.fbs";
 include "utils/i18n/language-tag.fbs";
 
@@ -147,19 +147,6 @@ table Nonterminals {
   annotation_nt:[Nonterminals_.AnnotationNtEntry];
 }
 
-// Callback information.
-namespace libtextclassifier3.grammar.RulesSet_;
-struct Callback {
-  // Whether the callback is a filter.
-  is_filter:bool;
-}
-
-namespace libtextclassifier3.grammar.RulesSet_;
-struct CallbackEntry {
-  key:uint (key);
-  value:Callback;
-}
-
 namespace libtextclassifier3.grammar.RulesSet_.DebugInformation_;
 table NonterminalNamesEntry {
   key:int (key);
@@ -205,7 +192,7 @@ table RulesSet {
   terminals:string;
 
   nonterminals:RulesSet_.Nonterminals;
-  callback:[RulesSet_.CallbackEntry];
+  reserved_6:int16 (deprecated);
   debug_information:RulesSet_.DebugInformation;
   regex_annotator:[RulesSet_.RegexAnnotator];
 
@@ -213,7 +200,7 @@ table RulesSet {
   lazy_regex_compilation:bool;
 
   // The semantic expressions associated with rule matches.
-  semantic_expression:[next.SemanticExpression];
+  semantic_expression:[SemanticExpression];
 
   // The schema defining the semantic results.
   semantic_values_schema:[ubyte];

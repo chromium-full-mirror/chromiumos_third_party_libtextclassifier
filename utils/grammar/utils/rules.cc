@@ -160,9 +160,16 @@ int Rules::AddNewNonterminal() {
 
 void Rules::AddAlias(const std::string& nonterminal_name,
                      const std::string& alias) {
+#ifndef TC3_USE_CXX14
+  TC3_CHECK_EQ(nonterminal_alias_.insert_or_assign(alias, nonterminal_name)
+                   .first->second,
+               nonterminal_name)
+      << "Cannot redefine alias: " << alias;
+#else
   nonterminal_alias_[alias] = nonterminal_name;
   TC3_CHECK_EQ(nonterminal_alias_[alias], nonterminal_name)
       << "Cannot redefine alias: " << alias;
+#endif
 }
 
 // Defines a nonterminal for an externally provided annotation.
@@ -301,7 +308,7 @@ void Rules::Add(const int lhs, const std::vector<RhsElement>& rhs,
                 const int8 max_whitespace_gap, const bool case_sensitive,
                 const int shard) {
   // Resolve anchors and fillers.
-  const std::vector<RhsElement> optimized_rhs = OptimizeRhs(rhs);
+  const std::vector optimized_rhs = OptimizeRhs(rhs);
 
   std::vector<int> optional_element_indices;
   TC3_CHECK_LT(optional_element_indices.size(), optimized_rhs.size())
@@ -406,7 +413,7 @@ bool Rules::UsesFillers() const {
 }
 
 Ir Rules::Finalize(const std::set<std::string>& predefined_nonterminals) const {
-  Ir rules(filters_, num_shards_);
+  Ir rules(num_shards_);
   std::unordered_map<int, Nonterm> nonterminal_ids;
 
   // Pending rules to process.
@@ -422,7 +429,7 @@ Ir Rules::Finalize(const std::set<std::string>& predefined_nonterminals) const {
   }
 
   // Assign (unmergeable) Nonterm values to any nonterminals that have
-  // multiple rules or that have a filter callback on some rule.
+  // multiple rules.
   for (int i = 0; i < nonterminals_.size(); i++) {
     const NontermInfo& nonterminal = nonterminals_[i];
 
@@ -435,15 +442,8 @@ Ir Rules::Finalize(const std::set<std::string>& predefined_nonterminals) const {
         (nonterminal.from_annotation || nonterminal.rules.size() > 1 ||
          !nonterminal.regex_rules.empty());
     for (const int rule_index : nonterminal.rules) {
-      const Rule& rule = rules_[rule_index];
-
       // Schedule rule.
       scheduled_rules.insert({i, rule_index});
-
-      if (rule.callback != kNoCallback &&
-          filters_.find(rule.callback) != filters_.end()) {
-        unmergeable = true;
-      }
     }
 
     if (unmergeable) {

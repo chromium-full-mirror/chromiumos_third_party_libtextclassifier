@@ -17,36 +17,6 @@
 #define LIBTEXTCLASSIFIER_UTILS_BASE_STATUSOR_H_
 
 #include <type_traits>
-
-namespace cros_tclib {
-
-// C++14 implementation of C++17's std::bool_constant.
-// Copied from chromium/src/base/template_util.h
-template <bool B>
-using bool_constant = std::integral_constant<bool, B>;
-// C++14 implementation of C++17's std::conjunction.
-// Copied from chromium/src/base/template_util.h
-template <typename...>
-    struct conjunction : std::true_type {};
-
-template <typename B1>
-    struct conjunction<B1> : B1 {};
-
-template <typename B1, typename... Bn>
-    struct conjunction<B1, Bn...>
-    : std::conditional_t<static_cast<bool>(B1::value), conjunction<Bn...>, B1> {
-};
-
-// C++14 implementation of C++17's std::negation.
-// Copied from chromium/src/base/template_util.h
-template <typename B>
-    struct negation : bool_constant<!static_cast<bool>(B::value)> {};
-
-} // namespace cros_tclib
-
-
-
-#include <type_traits>
 #include <utility>
 
 #include "utils/base/logging.h"
@@ -77,7 +47,7 @@ class StatusOr {
   // Conversion copy constructor, T must be copy constructible from U.
   template <typename U,
             std::enable_if_t<
-                cros_tclib::conjunction<cros_tclib::negation<std::is_same<T, U>>,
+                std::conjunction<std::negation<std::is_same<T, U>>,
                                  std::is_constructible<T, const U&>,
                                  std::is_convertible<const U&, T>>::value,
                 int> = 0>
@@ -86,7 +56,7 @@ class StatusOr {
   // Conversion move constructor, T must by move constructible from U.
   template <
       typename U,
-      std::enable_if_t<cros_tclib::conjunction<cros_tclib::negation<std::is_same<T, U>>,
+      std::enable_if_t<std::conjunction<std::negation<std::is_same<T, U>>,
                                         std::is_constructible<T, U&&>,
                                         std::is_convertible<U&&, T>>::value,
                        int> = 0>
@@ -95,7 +65,7 @@ class StatusOr {
   // Value conversion copy constructor, T must by copy constructible from U.
   template <typename U,
             std::enable_if_t<
-                cros_tclib::conjunction<cros_tclib::negation<std::is_same<T, U>>,
+                std::conjunction<std::negation<std::is_same<T, U>>,
                                  std::is_constructible<T, const U&>,
                                  std::is_convertible<const U&, T>>::value,
                 int> = 0>
@@ -104,7 +74,7 @@ class StatusOr {
   // Value conversion move constructor, T must by move constructible from U.
   template <
       typename U,
-      std::enable_if_t<cros_tclib::conjunction<cros_tclib::negation<std::is_same<T, U>>,
+      std::enable_if_t<std::conjunction<std::negation<std::is_same<T, U>>,
                                         std::is_constructible<T, U&&>,
                                         std::is_convertible<U&&, T>>::value,
                        int> = 0>
@@ -242,7 +212,7 @@ inline StatusOr<T>::StatusOr(StatusOr&& other)
 template <typename T>
 template <
     typename U,
-    std::enable_if_t<cros_tclib::conjunction<cros_tclib::negation<std::is_same<T, U>>,
+    std::enable_if_t<std::conjunction<std::negation<std::is_same<T, U>>,
                                       std::is_constructible<T, const U&>,
                                       std::is_convertible<const U&, T>>::value,
                      int>>
@@ -251,7 +221,7 @@ inline StatusOr<T>::StatusOr(const StatusOr<U>& other)
 
 template <typename T>
 template <typename U,
-          std::enable_if_t<cros_tclib::conjunction<cros_tclib::negation<std::is_same<T, U>>,
+          std::enable_if_t<std::conjunction<std::negation<std::is_same<T, U>>,
                                             std::is_constructible<T, U&&>,
                                             std::is_convertible<U&&, T>>::value,
                            int>>
@@ -261,7 +231,7 @@ inline StatusOr<T>::StatusOr(StatusOr<U>&& other)
 template <typename T>
 template <
     typename U,
-    std::enable_if_t<cros_tclib::conjunction<cros_tclib::negation<std::is_same<T, U>>,
+    std::enable_if_t<std::conjunction<std::negation<std::is_same<T, U>>,
                                       std::is_constructible<T, const U&>,
                                       std::is_convertible<const U&, T>>::value,
                      int>>
@@ -269,7 +239,7 @@ inline StatusOr<T>::StatusOr(const U& value) : StatusOr(T(value)) {}
 
 template <typename T>
 template <typename U,
-          std::enable_if_t<cros_tclib::conjunction<cros_tclib::negation<std::is_same<T, U>>,
+          std::enable_if_t<std::conjunction<std::negation<std::is_same<T, U>>,
                                             std::is_constructible<T, U&&>,
                                             std::is_convertible<U&&, T>>::value,
                            int>>
