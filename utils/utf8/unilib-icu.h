@@ -206,9 +206,17 @@ bool UniLibBase::ParseInt(const UnicodeText& text, T* result) const {
   const double double_parse =
       unum_parseDouble(format_alias.get(), utf8_string.getBuffer(),
                        utf8_string.length(), &parse_index, &status);
+  // N.B., the `numeric_limits` numbers are casted because Clang emits errors
+  // here for sufficiently wide types (e.g.,
+  // "error: implicit conversion from 'type' (aka 'long long') to 'double'
+  // changes value from 9223372036854775807 to 9223372036854775808").
+  //
+  // These checks are actually unnecessary, since we have
+  // `*result != double_parse` below, which will verify that the double
+  // conversion didn't result in an overflow.
   if (isnan(double_parse) || isinf(double_parse) ||
-      double_parse >= std::numeric_limits<T>::max() ||
-      double_parse <= std::numeric_limits<T>::min()) {
+      double_parse > static_cast<double>(std::numeric_limits<T>::max()) ||
+      double_parse < static_cast<double>(std::numeric_limits<T>::min())) {
     return false;
   }
   *result = std::trunc(double_parse);
