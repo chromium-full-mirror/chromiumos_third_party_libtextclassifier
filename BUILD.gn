@@ -28,6 +28,12 @@ pkg_config("tclib_config") {
   ]
 }
 
+pkg_config("flatbuffers_config") {
+  pkg_deps = [
+    "flatbuffers",
+  ]
+}
+
 flatbuffer("flatbuffers") {
   sources = [
     "annotator/entity-data.fbs",
@@ -183,13 +189,11 @@ static_library("textclassifier") {
   ]
 
   libs = [
-    "flatbuffers",
     "tensorflowlite",
   ]
 
   include_dirs = [
     "${root_gen_dir}/libtextclassifier",
-    "${sysroot}/usr/include/flatbuffers",
     "${sysroot}/usr/include/icu-chrome/common/",
     "${sysroot}/usr/include/icu-chrome/i18n/",
     "${sysroot}/usr/include/marisa-aosp",
@@ -198,7 +202,8 @@ static_library("textclassifier") {
   ]
 
   configs += [
-    "//common-mk:nouse_thin_archive"
+    "//common-mk:nouse_thin_archive",
+    ":flatbuffers_config",
   ]
   configs -= [ "//common-mk:use_thin_archive" ]
 }
